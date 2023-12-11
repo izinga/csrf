@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gorilla/securecookie"
 )
@@ -76,6 +77,7 @@ type csrf struct {
 	sc   *securecookie.SecureCookie
 	st   store
 	opts options
+	PathRegx string
 }
 
 // options contains the optional settings for the CSRF middleware.
@@ -208,7 +210,10 @@ func (cs *csrf) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
+	if cs.PathRegx != "" && strings.Contains(r.URL.Path, cs.PathRegx) {
+		cs.h.ServeHTTP(w, r)
+		return
+	}
 	// Retrieve the token from the session.
 	// An error represents either a cookie that failed HMAC validation
 	// or that doesn't exist.
