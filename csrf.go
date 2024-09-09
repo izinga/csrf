@@ -146,7 +146,7 @@ type options struct {
 //		// This is useful if you're sending JSON to clients or a front-end JavaScript
 //		// framework.
 //	}
-func Protect(authKey []byte, opts ...Option) func(http.Handler) http.Handler {
+func Protect(authKey []byte, blockKey []byte,opts ...Option) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		cs := parseOptions(h, opts...)
 
@@ -174,7 +174,7 @@ func Protect(authKey []byte, opts ...Option) func(http.Handler) http.Handler {
 
 		// Create an authenticated securecookie instance.
 		if cs.sc == nil {
-			cs.sc = securecookie.New(authKey, nil)
+			cs.sc = securecookie.New(authKey, blockKey)
 			// Use JSON serialization (faster than one-off gob encoding)
 			cs.sc.SetSerializer(securecookie.JSONEncoder{})
 			// Set the MaxAge of the underlying securecookie.
